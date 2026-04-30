@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>薪資分配實戰教材｜科學預算法</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=DM+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── 變數 ──────────────────────────────────────────────── */
+:root {
+  --navy:    #0F1F3D;
+  --blue:    #1565C0;
+  --lblue:   #1E88E5;
+  --teal:    #00838F;
+  --green:   #2E7D32;
+  --lgreen:  #E8F5E9;
+  --amber:   #E65100;
+  --lamber:  #FFF3E0;
+  --red:     #C62828;
+  --lred:    #FFEBEE;
+  --white:   #FFFFFF;
+  --bg:      #F0F4FA;
+  --surface: #FFFFFF;
+  --lgray:   #F5F7FA;
+  --mgray:   #DDE3ED;
+  --dgray:   #5A6375;
+  --border:  #D1D9E6;
+  --input-bg:#EBF4FF;
+  --calc-bg: #F0FFF4;
+  --hint-bg: #FFFDE7;
+  --shadow-sm: 0 1px 4px rgba(15,31,61,.07);
+  --shadow:    0 4px 16px rgba(15,31,61,.10);
+  --shadow-lg: 0 8px 32px rgba(15,31,61,.13);
+  --radius:    14px;
+  --radius-sm: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Noto Sans TC', sans-serif;
+  background: var(--bg);
+  color: var(--navy);
+  line-height: 1.6;
+}
+
+/* ── HEADER ─────────────────────────────────────────────── */
+.site-header {
+  background: var(--navy);
+  padding: 0 24px;
+  position: sticky; top: 0; z-index: 200;
+  box-shadow: 0 2px 20px rgba(0,0,0,.3);
+}
+.header-inner {
+  max-width: 780px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 56px;
+}
+.logo {
+  font-size: 15px; font-weight: 800; color: #fff;
+  letter-spacing: .01em; display: flex; align-items: center; gap: 8px;
+}
+.logo-icon { font-size: 20px; }
+.legend {
+  display: flex; gap: 14px;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 10px; color: #8BAAD4; font-weight: 500;
+}
+.leg-dot {
+  width: 9px; height: 9px; border-radius: 2px;
+}
+.leg-input { background: var(--input-bg); border: 1.5px solid var(--lblue); }
+.leg-calc  { background: var(--calc-bg);  border: 1.5px solid var(--green); }
+
+/* ── NAV STEPS ───────────────────────────────────────────── */
+.step-nav {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 56px; z-index: 100;
+  overflow-x: auto;
+}
+.step-nav-inner {
+  max-width: 780px; margin: 0 auto;
+  display: flex; padding: 0 8px;
+}
+.step-btn {
+  flex: 1; min-width: 80px;
+  padding: 10px 8px;
+  font-size: 10px; font-weight: 700;
+  color: var(--dgray);
+  background: none; border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+  text-align: center;
+}
+.step-btn:hover { color: var(--navy); }
+.step-btn.active { color: var(--lblue); border-bottom-color: var(--lblue); }
+
+/* ── MAIN ────────────────────────────────────────────────── */
+.main {
+  max-width: 780px; margin: 0 auto;
+  padding: 28px 16px 60px;
+  display: flex; flex-direction: column; gap: 20px;
+}
+
+/* ── 健診浮動卡 ──────────────────────────────────────────── */
+.sticky-health {
+  position: fixed;
+  bottom: 20px; right: 20px;
+  width: 220px;
+  background: var(--navy);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: var(--shadow-lg);
+  z-index: 150;
+  transform: translateY(120%);
+  transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+}
+.sticky-health.show { transform: translateY(0); }
+.sh-title {
+  font-size: 10px; font-weight: 800; color: #8BAAD4;
+  letter-spacing: .08em; text-transform: uppercase; margin-bottom: 10px;
+}
+.sh-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 5px;
+}
+.sh-label { font-size: 10px; color: #B0C4DE; }
+.sh-val   { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600; color: #fff; }
+.sh-icon  { font-size: 11px; }
+.sh-divider { height: 1px; background: rgba(255,255,255,.1); margin: 6px 0; }
+.sh-overall {
+  font-size: 10px; font-weight: 700; margin-top: 6px;
+  text-align: center; padding: 6px;
+  border-radius: 6px; background: rgba(255,255,255,.08);
+  color: #fff;
+}
+
+/* ── CARD ────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  animation: slideUp .35s ease both;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card:nth-child(1) { animation-delay:.05s }
+.card:nth-child(2) { animation-delay:.10s }
+.card:nth-child(3) { animation-delay:.15s }
+.card:nth-child(4) { animation-delay:.20s }
+.card:nth-child(5) { animation-delay:.25s }
+.card:nth-child(6) { animation-delay:.30s }
+
+.card-header {
+  padding: 16px 20px 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.card-header .step-pill {
+  background: rgba(255,255,255,.2);
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 9px; font-weight: 800;
+  letter-spacing: .1em; color: rgba(255,255,255,.9);
+  flex-shrink: 0;
+}
+.card-header .card-title {
+  font-size: 14px; font-weight: 800; color: #fff;
+  letter-spacing: .02em;
+}
+.ch-blue   { background: linear-gradient(135deg, #1565C0, #1E88E5); }
+.ch-slate  { background: linear-gradient(135deg, #263238, #455A64); }
+.ch-red    { background: linear-gradient(135deg, #B71C1C, #E53935); }
+.ch-amber  { background: linear-gradient(135deg, #BF360C, #F4511E); }
+.ch-green  { background: linear-gradient(135deg, #1B5E20, #388E3C); }
+.ch-navy   { background: linear-gradient(135deg, #0F1F3D, #1A3A6A); }
+
+.card-tip {
+  padding: 10px 20px;
+  font-size: 11px; color: #6D5800; line-height: 1.65;
+  background: var(--hint-bg);
+  border-bottom: 1px solid #FFE082;
+}
+
+.card-body { padding: 18px 20px 20px; }
+
+/* ── 色彩標示說明 ──────────────────────────────────────────── */
+.legend-strip {
+  display: flex; gap: 16px;
+  padding: 8px 20px;
+  background: var(--lgray);
+  border-bottom: 1px solid var(--mgray);
+  font-size: 10px; color: var(--dgray);
+  align-items: center; flex-wrap: wrap;
+}
+.lstrip-item { display: flex; align-items: center; gap: 5px; }
+.lstrip-dot { width: 10px; height: 10px; border-radius: 2px; }
+
+/* ── TABLE ───────────────────────────────────────────────── */
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.tbl th {
+  background: var(--lgray);
+  border: 1px solid var(--mgray);
+  padding: 7px 10px;
+  font-size: 10px; font-weight: 700; color: var(--dgray);
+  text-align: center; white-space: nowrap;
+}
+.tbl td {
+  border: 1px solid var(--mgray);
+  padding: 7px 10px;
+  vertical-align: middle;
+}
+.tbl tr:nth-child(even) td { background: var(--lgray); }
+.tbl tr:nth-child(odd)  td { background: var(--white); }
+.tbl tr:hover td { background: #EFF4FF; }
+
+.item-name { font-weight: 500; color: var(--navy); font-size: 11.5px; }
+.item-hint { font-size: 9.5px; color: #9AA3B2; font-style: italic; margin-top: 1px; }
+
+/* ── INPUTS ──────────────────────────────────────────────── */
+input[type="number"] {
+  width: 100%; min-width: 88px;
+  border: 1.5px solid #ADC8E6;
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px; font-weight: 500;
+  color: #0044AA;
+  background: var(--input-bg);
+  text-align: right;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+input[type="number"]:focus {
+  border-color: var(--lblue);
+  box-shadow: 0 0 0 3px rgba(30,136,229,.12);
+}
+input.yn-inp {
+  width: 44px; min-width: 44px;
+  text-align: center; font-weight: 800;
+  font-size: 12px; color: #0044AA;
+}
+
+/* ── CALC OUTPUT ─────────────────────────────────────────── */
+.calc-out {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px; font-weight: 600;
+  color: var(--green);
+  background: var(--calc-bg);
+  border: 1.5px solid #A5D6A7;
+  border-radius: 6px;
+  padding: 5px 9px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* ── TOTAL ROW ───────────────────────────────────────────── */
+.total-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-top: 14px;
+  gap: 12px;
+}
+.tb-blue   { background: linear-gradient(90deg,#E3F2FD,#f7fbff); border: 1.5px solid #90CAF9; }
+.tb-red    { background: linear-gradient(90deg,var(--lred),#fff9f9); border: 1.5px solid #EF9A9A; }
+.tb-amber  { background: linear-gradient(90deg,var(--lamber),#fffcf9); border: 1.5px solid #FFCC80; }
+.tb-green  { background: linear-gradient(90deg,var(--lgreen),#f9fff9); border: 1.5px solid #A5D6A7; }
+.tb-label  { font-size: 13px; font-weight: 800; color: var(--navy); }
+.tb-val    {
+  font-family: 'DM Mono', monospace;
+  font-size: 18px; font-weight: 700; color: var(--navy);
+}
+.tb-badge  {
+  display: inline-flex; align-items: center; gap: 4px;
+  border-radius: 20px; padding: 4px 14px;
+  font-size: 11px; font-weight: 700;
+}
+.badge-g { background: var(--lgreen); color: var(--green); }
+.badge-y { background: #FFF9C4; color: #F57F17; }
+.badge-r { background: var(--lred);  color: var(--red); }
+
+/* ── MODE SELECTOR ───────────────────────────────────────── */
+.mode-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.mode-card {
+  border-radius: 10px; padding: 14px 12px 12px;
+  cursor: pointer;
+  border: 2.5px solid transparent;
+  transition: all .2s; text-align: center;
+  background: var(--lgray);
+}
+.mode-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.mode-card.active { border-color: var(--navy); box-shadow: 0 0 0 4px rgba(15,31,61,.10); }
+.mode-card.m1 { background: var(--lgreen); }
+.mode-card.m2 { background: var(--lamber); }
+.mode-card.m3 { background: #E3F2FD; }
+.mc-emoji  { font-size: 22px; margin-bottom: 4px; }
+.mc-name   { font-size: 12px; font-weight: 800; color: var(--navy); }
+.mc-ratio  { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dgray); margin: 2px 0; }
+.mc-desc   { font-size: 9.5px; color: var(--dgray); }
+
+/* ── BUDGET BARS ──────────────────────────────────────────── */
+.budget-section { margin-top: 18px; }
+.budget-section-title {
+  font-size: 11px; font-weight: 700; color: var(--dgray);
+  text-transform: uppercase; letter-spacing: .06em;
+  margin-bottom: 10px;
+}
+.b-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+}
+.b-label { font-size: 11px; font-weight: 600; width: 70px; flex-shrink: 0; }
+.b-pct   { font-family:'DM Mono',monospace; font-size:10px; color:var(--dgray); width:32px; text-align:right; flex-shrink:0; }
+.b-track { flex: 1; height: 8px; background: var(--mgray); border-radius: 4px; overflow: hidden; }
+.b-fill  { height: 100%; border-radius: 4px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+.bf-red   { background: linear-gradient(90deg, #E53935, #EF5350); }
+.bf-amber { background: linear-gradient(90deg, #F4511E, #FF7043); }
+.bf-green { background: linear-gradient(90deg, #388E3C, #4CAF50); }
+.b-amt   {
+  font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 700;
+  color: var(--navy); min-width: 80px; text-align: right; flex-shrink: 0;
+}
+
+/* ── 健診完整版（內嵌） ───────────────────────────────────── */
+.health-grid { display: flex; flex-direction: column; gap: 6px; }
+.h-row {
+  display: flex; align-items: center;
+  padding: 9px 14px; border-radius: 8px;
+  background: var(--lgray);
+  gap: 8px;
+}
+.h-label { flex: 1; font-size: 12px; font-weight: 600; color: var(--navy); }
+.h-val   {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px; font-weight: 700; color: var(--navy);
+  min-width: 90px; text-align: right;
+}
+.h-target { font-size: 10px; color: var(--dgray); min-width: 70px; text-align: right; }
+.h-icon  { font-size: 14px; width: 22px; text-align: center; flex-shrink: 0; }
+.h-divider { height: 1px; background: var(--mgray); margin: 2px 0; }
+.h-overall {
+  padding: 14px 16px; border-radius: 10px;
+  font-size: 13px; font-weight: 800; text-align: center;
+  margin-top: 4px;
+}
+.ho-great { background: var(--lgreen); color: var(--green); }
+.ho-warn  { background: var(--lamber); color: var(--amber); }
+.ho-bad   { background: var(--lred);   color: var(--red); }
+.ho-empty { background: var(--lgray);  color: var(--dgray); }
+
+/* ── 理財觀念 ────────────────────────────────────────────── */
+.concepts { display: flex; flex-direction: column; gap: 10px; }
+.concept-card {
+  border-radius: 10px; overflow: hidden;
+  border: 1px solid var(--border);
+}
+.cc-header {
+  padding: 10px 16px;
+  font-size: 12px; font-weight: 800; color: #fff;
+  display: flex; align-items: center; gap: 8px;
+}
+.cc-body {
+  padding: 10px 16px 12px;
+  font-size: 11px; color: #444; line-height: 1.7;
+  background: var(--hint-bg);
+}
+
+/* ── FOOTER ──────────────────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 16px;
+  font-size: 10px; color: #9AA;
+  border-top: 1px solid var(--border);
+  background: var(--lred);
+  max-width: 100%;
+}
+
+/* ── SCROLL TO TOP ───────────────────────────────────────── */
+.scroll-top {
+  position: fixed; bottom: 20px; left: 20px;
+  width: 40px; height: 40px;
+  background: var(--navy); color: #fff;
+  border: none; border-radius: 50%;
+  font-size: 18px; cursor: pointer;
+  box-shadow: var(--shadow);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity .3s, transform .3s;
+  z-index: 150;
+}
+.scroll-top.show { opacity: 1; pointer-events: auto; }
+.scroll-top:hover { transform: translateY(-2px); }
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 520px) {
+  .mode-grid { grid-template-columns: 1fr; }
+  .sticky-health { width: 180px; right: 10px; bottom: 10px; }
+  .header-inner { gap: 8px; }
+  .logo { font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-icon">💰</span>
+      薪資分配實戰教材
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="leg-dot leg-input"></div>藍色 = 請填入</div>
+      <div class="legend-item"><div class="leg-dot leg-calc"></div>綠色 = 自動計算</div>
+    </div>
+  </div>
+</header>
+
+<!-- STEP NAV -->
+<nav class="step-nav">
+  <div class="step-nav-inner">
+    <button class="step-btn active" onclick="scrollTo('s1',this)">STEP 1 收入</button>
+    <button class="step-btn" onclick="scrollTo('s2',this)">STEP 2 模式</button>
+    <button class="step-btn" onclick="scrollTo('s3',this)">STEP 3 固定</button>
+    <button class="step-btn" onclick="scrollTo('s4',this)">STEP 4 變動</button>
+    <button class="step-btn" onclick="scrollTo('s5',this)">STEP 5 儲蓄</button>
+    <button class="step-btn" onclick="scrollTo('s6',this)">健診報告</button>
+    <button class="step-btn" onclick="scrollTo('s7',this)">理財觀念</button>
+  </div>
+</nav>
+
+<!-- 浮動健診卡 -->
+<div class="sticky-health" id="stickyHealth">
+  <div class="sh-title">📊 即時財務健診</div>
+  <div class="sh-row">
+    <span class="sh-label">月收入</span>
+    <span class="sh-val" id="sh_income">$0</span>
+  </div>
+  <div class="sh-row">
+    <span class="sh-label">固定支出</span>
+    <span class="sh-val" id="sh_fixed">$0</span>
+    <span class="sh-icon" id="sh_fixed_i">—</span>
+  </div>
+  <div class="sh-row">
+    <span class="sh-label">變動支出</span>
+    <span class="sh-val" id="sh_var">$0</span>
+    <span class="sh-icon" id="sh_var_i">—</span>
+  </div>
+  <div class="sh-row">
+    <span class="sh-label">儲蓄</span>
+    <span class="sh-val" id="sh_save">$0</span>
+    <span class="sh-icon" id="sh_save_i">—</span>
+  </div>
+  <div class="sh-divider"></div>
+  <div class="sh-row">
+    <span class="sh-label">結餘</span>
+    <span class="sh-val" id="sh_surplus">$0</span>
+    <span class="sh-icon" id="sh_surplus_i">—</span>
+  </div>
+  <div class="sh-overall" id="sh_overall">請先填入收入</div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- ── STEP 1 收入 ──────────────────────────────── -->
+  <section class="card" id="s1">
+    <div class="card-header ch-blue">
+      <span class="step-pill">STEP 1</span>
+      <span class="card-title">月收入設定</span>
+    </div>
+    <div class="card-tip">
+      💡 <strong>關鍵觀念：</strong>分開記錄「固定薪資」與「浮動收入（副業/獎金）」。建議只把穩定薪資納入預算，浮動收入當作「加分項」用來加速儲蓄或還債，不作為固定支出依據。
+    </div>
+    <div class="legend-strip">
+      <div class="lstrip-item"><div class="lstrip-dot leg-input"></div>藍色儲存格 = 請填入</div>
+      <div class="lstrip-item"><div class="lstrip-dot leg-calc"></div>綠色儲存格 = 自動計算</div>
+      <div style="margin-left:auto; font-size:10px;">「納入預算」填 Y 或 N</div>
+    </div>
+    <div class="card-body">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th style="text-align:left; width:42%">收入來源</th>
+            <th style="width:28%">金額（元）</th>
+            <th style="width:15%">納入預算?</th>
+            <th style="width:15%">說明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="item-name">固定薪資（實領）</div><div class="item-hint">每月穩定的基本薪資，最重要的數字</div></td>
+            <td><input type="number" id="i1" value="0" min="0" oninput="calc()"></td>
+            <td><input type="text" class="yn-inp" id="yn1" value="Y" oninput="calc()" maxlength="1"></td>
+            <td style="font-size:9.5px; color:#2E7D32; font-weight:600;">建議 Y</td>
+          </tr>
+          <tr>
+            <td><div class="item-name">兼職 / 副業</div><div class="item-hint">不穩定，建議不納入固定預算</div></td>
+            <td><input type="number" id="i2" value="0" min="0" oninput="calc()"></td>
+            <td><input type="text" class="yn-inp" id="yn2" value="N" oninput="calc()" maxlength="1"></td>
+            <td style="font-size:9.5px; color:#E65100; font-weight:600;">建議 N</td>
+          </tr>
+          <tr>
+            <td><div class="item-name">投資報酬</div><div class="item-hint">報酬不穩定，勿作為固定支出依據</div></td>
+            <td><input type="number" id="i3" value="0" min="0" oninput="calc()"></td>
+            <td><input type="text" class="yn-inp" id="yn3" value="N" oninput="calc()" maxlength="1"></td>
+            <td style="font-size:9.5px; color:#E65100; font-weight:600;">建議 N</td>
+          </tr>
+          <tr>
+            <td><div class="item-name">獎金 / 不定期收入</div><div class="item-hint">年終、績效獎金，用來提前還債或大筆儲蓄</div></td>
+            <td><input type="number" id="i4" value="0" min="0" oninput="calc()"></td>
+            <td><input type="text" class="yn-inp" id="yn4" value="N" oninput="calc()" maxlength="1"></td>
+            <td style="font-size:9.5px; color:#E65100; font-weight:600;">建議 N</td>
+          </tr>
+          <tr>
+            <td><div class="item-name">其他收入</div><div class="item-hint">視穩定度決定是否納入</div></td>
+            <td><input type="number" id="i5" value="0" min="0" oninput="calc()"></td>
+            <td><input type="text" class="yn-inp" id="yn5" value="N" oninput="calc()" maxlength="1"></td>
+            <td style="font-size:9.5px; color:var(--dgray);">視情況</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="total-bar tb-blue">
+        <span class="tb-label">▶ 月總收入（納入預算）</span>
+        <span class="tb-val" id="totalIncome">$0</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── STEP 2 模式 ──────────────────────────────── -->
+  <section class="card" id="s2">
+    <div class="card-header ch-slate">
+      <span class="step-pill">STEP 2</span>
+      <span class="card-title">選擇你的生活模式</span>
+    </div>
+    <div class="card-tip">
+      💡 三種模式是根據你目前的財務狀態設計的。點擊下方卡片選擇，預算上限會自動計算。不要貪心直接選財富模式——先誠實評估自己的負債與收入穩定度。
+    </div>
+    <div class="card-body">
+      <div class="mode-grid">
+        <div class="mode-card m1 active" data-mode="1" onclick="selectMode(1)">
+          <div class="mc-emoji">🟢</div>
+          <div class="mc-name">求生模式</div>
+          <div class="mc-ratio">50 / 40 / 10</div>
+          <div class="mc-desc">剛出社會、高負債<br>收入尚不穩定</div>
+        </div>
+        <div class="mode-card m2" data-mode="2" onclick="selectMode(2)">
+          <div class="mc-emoji">🟡</div>
+          <div class="mc-name">生活模式</div>
+          <div class="mc-ratio">50 / 30 / 20</div>
+          <div class="mc-desc">收入穩定<br>兼顧品質與儲蓄</div>
+        </div>
+        <div class="mode-card m3" data-mode="3" onclick="selectMode(3)">
+          <div class="mc-emoji">🔵</div>
+          <div class="mc-name">財富模式</div>
+          <div class="mc-ratio">40 / 20 / 40</div>
+          <div class="mc-desc">有紀律<br>加速累積財富</div>
+        </div>
+      </div>
+
+      <div class="budget-section">
+        <div class="budget-section-title">各類別預算上限（依月收入自動計算）</div>
+        <div class="b-row">
+          <span class="b-label" style="color:var(--red)">固定支出</span>
+          <span class="b-pct" id="pctFixed">50%</span>
+          <div class="b-track"><div class="b-fill bf-red" id="barFixed" style="width:50%"></div></div>
+          <span class="b-amt" id="budgetFixed">$0</span>
+        </div>
+        <div class="b-row">
+          <span class="b-label" style="color:var(--amber)">變動支出</span>
+          <span class="b-pct" id="pctVar">40%</span>
+          <div class="b-track"><div class="b-fill bf-amber" id="barVar" style="width:40%"></div></div>
+          <span class="b-amt" id="budgetVar">$0</span>
+        </div>
+        <div class="b-row">
+          <span class="b-label" style="color:var(--green)">儲蓄目標</span>
+          <span class="b-pct" id="pctSave">10%</span>
+          <div class="b-track"><div class="b-fill bf-green" id="barSave" style="width:10%"></div></div>
+          <span class="b-amt" id="budgetSave">$0</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── STEP 3 固定支出 ──────────────────────────── -->
+  <section class="card" id="s3">
+    <div class="card-header ch-red">
+      <span class="step-pill">STEP 3</span>
+      <span class="card-title">固定支出明細</span>
+    </div>
+    <div class="card-tip">
+      💡 固定支出 = 每月幾乎不變的必付項目（房租、貸款、保險等）。合計不應超過月收入的 40~50%。若固定支出已超標，優先考慮增加收入或減少負債，而非壓縮儲蓄。
+    </div>
+    <div class="card-body">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th style="text-align:left; width:40%">支出項目</th>
+            <th style="width:28%">金額（元）</th>
+            <th style="text-align:left; width:32%">理財提示</th>
+          </tr>
+        </thead>
+        <tbody id="fixedBody">
+          <tr><td><div class="item-name">房租 / 房貸</div><div class="item-hint">居住成本最大宗</div></td><td><input type="number" class="fixed-inp" value="0" min="0" oninput="calc()"></td><td class="item-hint">建議不超過月收入 30%</td></tr>
+          <tr><td><div class="item-name">車貸</div><div class="item-hint">含貸款本金+利息</div></td><td><input type="number" class="fixed-inp" value="0" min="0" oninput="calc()"></td><td class="item-hint">車貸+油費合計建議≤收入15%</td></tr>
+          <tr><td><div class="item-name">信用貸款</div><div class="item-hint">年息通常5~15%</div></td><td><input type="number" class="fixed-inp" value="0" min="0" oninput="calc()"></td><td class="item-hint">高利率貸款優先清償，年息5%以上先還</td></tr>
+          <tr><td><div class="item-name">學生貸款</div><div class="item-hint">政府補貼利率較低</div></td><td><input type="number" class="fixed-inp" value="0" min="0" oninput="calc()"></td><td class="item-hint">利率較低，列入控管即可</td></tr>
+          <tr><td><div class="item-name">保險費</div><div class="item-hint">壽險、醫療、意外</div></td><td><input type="number" class="fixed-inp" value="0" min="0" oninput="calc()"></td><td class="item-hint">純保障型建議≤月收入5%，避免儲蓄險</td></tr>
+          <tr><td><div class="item-name">分期付款</div><div class="item-hint">手機、家電等分期</div></td><td><input type="number" class="fixed-inp" value="0" min="0" oninput="calc()"></td><td class="item-hint">注意0利率結束後的隱藏費用</td></tr>
+          <tr><td><div class="item-name">水電瓦斯</div><div class="item-hint">基本民生費用</div></td><td><input type="number" class="fixed-inp" value="0" min="0" oninput="calc()"></td><td class="item-hint">波動小，可固定估算</td></tr>
+          <tr><td><div class="item-name">電信費</div><div class="item-hint">手機+網路</div></td><td><input type="number" class="fixed-inp" value="0" min="0" oninput="calc()"></td><td class="item-hint">每年比價，確認是否仍最划算</td></tr>
+          <tr><td><div class="item-name">訂閱服務</div><div class="item-hint">串流、軟體等</div></td><td><input type="number" class="fixed-inp" value="0" min="0" oninput="calc()"></td><td class="item-hint">每半年清點一次是否仍在使用</td></tr>
+          <tr><td><div class="item-name">其他固定支出</div><div class="item-hint"></div></td><td><input type="number" class="fixed-inp" value="0" min="0" oninput="calc()"></td><td class="item-hint">其他每月固定必付費用</td></tr>
+        </tbody>
+      </table>
+
+      <div class="total-bar tb-red">
+        <div>
+          <div class="tb-label">▶ 固定支出合計</div>
+          <div style="font-size:10px; color:var(--dgray); margin-top:2px;">預算上限：<span id="fixedBudgetHint">$0</span></div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+          <div class="tb-badge badge-g" id="fixedStatus">🟢 在預算內</div>
+          <div class="tb-val" id="totalFixed">$0</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── STEP 4 變動支出 ──────────────────────────── -->
+  <section class="card" id="s4">
+    <div class="card-header ch-amber">
+      <span class="step-pill">STEP 4</span>
+      <span class="card-title">變動支出明細</span>
+    </div>
+    <div class="card-tip">
+      💡 變動支出是你<strong>最能主動控制</strong>的部分。建議每週記帳一次，月底對比預算。減少變動支出是最快速提升儲蓄率的方法！「需要」vs「想要」是每次消費前必問的問題。
+    </div>
+    <div class="card-body">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th style="text-align:left; width:40%">支出項目</th>
+            <th style="width:28%">金額（元）</th>
+            <th style="text-align:left; width:32%">理財提示</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><div class="item-name">餐飲</div><div class="item-hint">外食+超市採買</div></td><td><input type="number" class="var-inp" value="0" min="0" oninput="calc()"></td><td class="item-hint">最大變動支出，建議≤月收入15%</td></tr>
+          <tr><td><div class="item-name">娛樂 / 休閒</div><div class="item-hint">電影、KTV、運動</div></td><td><input type="number" class="var-inp" value="0" min="0" oninput="calc()"></td><td class="item-hint">不需歸零，≤5%即可，過度壓縮易反彈</td></tr>
+          <tr><td><div class="item-name">購物 / 衣物</div><div class="item-hint">服飾、生活用品</div></td><td><input type="number" class="var-inp" value="0" min="0" oninput="calc()"></td><td class="item-hint">等24小時再決定，避免衝動消費</td></tr>
+          <tr><td><div class="item-name">交通 / 油費</div><div class="item-hint">捷運、計程車、加油</div></td><td><input type="number" class="var-inp" value="0" min="0" oninput="calc()"></td><td class="item-hint">與車貸合計建議≤收入15%</td></tr>
+          <tr><td><div class="item-name">寵物費</div><div class="item-hint">食物、醫療、美容</div></td><td><input type="number" class="var-inp" value="0" min="0" oninput="calc()"></td><td class="item-hint">建議另設寵物緊急醫療備用金</td></tr>
+          <tr><td><div class="item-name">日常雜支</div><div class="item-hint">各種零碎小花費</div></td><td><input type="number" class="var-inp" value="0" min="0" oninput="calc()"></td><td class="item-hint">零碎消費累積驚人，記帳才能看見</td></tr>
+          <tr><td><div class="item-name">備用零用金</div><div class="item-hint">緩衝預算</div></td><td><input type="number" class="var-inp" value="0" min="0" oninput="calc()"></td><td class="item-hint">預留2~3%作為意外支出緩衝</td></tr>
+          <tr><td><div class="item-name">其他變動支出</div><div class="item-hint">醫療、禮金、臨時</div></td><td><input type="number" class="var-inp" value="0" min="0" oninput="calc()"></td><td class="item-hint">每月預留彈性，避免打亂計畫</td></tr>
+        </tbody>
+      </table>
+
+      <div class="total-bar tb-amber">
+        <div>
+          <div class="tb-label">▶ 變動支出合計</div>
+          <div style="font-size:10px; color:var(--dgray); margin-top:2px;">預算上限：<span id="varBudgetHint">$0</span></div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+          <div class="tb-badge badge-g" id="varStatus">🟢 在預算內</div>
+          <div class="tb-val" id="totalVar">$0</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── STEP 5 儲蓄 ──────────────────────────────── -->
+  <section class="card" id="s5">
+    <div class="card-header ch-green">
+      <span class="step-pill">STEP 5</span>
+      <span class="card-title">儲蓄目標設定</span>
+    </div>
+    <div class="card-tip">
+      💡 <strong>先存後花</strong>：薪水入帳後，第一件事就是把儲蓄金額轉入獨立帳戶，剩下的才是可花金額。儲蓄三層順序：①緊急預備金 → ②清高利率負債 → ③定期投資。務必按順序來！
+    </div>
+    <div class="card-body">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th style="text-align:left; width:40%">儲蓄項目</th>
+            <th style="width:28%">本月金額（元）</th>
+            <th style="text-align:left; width:32%">說明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:3px;">
+                <span style="background:var(--lred); color:var(--red); font-size:9px; font-weight:800; padding:2px 7px; border-radius:10px;">① 最優先</span>
+              </div>
+              <div class="item-name">緊急預備金</div>
+              <div class="item-hint">目標：3~6個月生活費，存入獨立帳戶</div>
+            </td>
+            <td><input type="number" class="save-inp" value="0" min="0" oninput="calc()"></td>
+            <td class="item-hint">絕不動用於日常消費或投資，只供真正緊急時使用</td>
+          </tr>
+          <tr>
+            <td>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:3px;">
+                <span style="background:var(--lamber); color:var(--amber); font-size:9px; font-weight:800; padding:2px 7px; border-radius:10px;">② 次優先</span>
+              </div>
+              <div class="item-name">高利率負債加速還款</div>
+              <div class="item-hint">信用卡循環年息約15%</div>
+            </td>
+            <td><input type="number" class="save-inp" value="0" min="0" oninput="calc()"></td>
+            <td class="item-hint">還清高利率負債 = 無風險高報酬，比任何投資都划算</td>
+          </tr>
+          <tr>
+            <td>
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:3px;">
+                <span style="background:var(--lgreen); color:var(--green); font-size:9px; font-weight:800; padding:2px 7px; border-radius:10px;">③ 第三步</span>
+              </div>
+              <div class="item-name">定期定額投資（ETF）</div>
+              <div class="item-hint">完成前兩步後再開始</div>
+            </td>
+            <td><input type="number" class="save-inp" value="0" min="0" oninput="calc()"></td>
+            <td class="item-hint">每月固定買進，利用時間複利，不擇時、不停損</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="item-name">旅遊 / 進修基金</div>
+              <div class="item-hint">中期目標，獨立帳戶管理</div>
+            </td>
+            <td><input type="number" class="save-inp" value="0" min="0" oninput="calc()"></td>
+            <td class="item-hint">為特定目標存款，與日常帳戶分開</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="item-name">其他儲蓄目標</div>
+              <div class="item-hint">自訂項目</div>
+            </td>
+            <td><input type="number" class="save-inp" value="0" min="0" oninput="calc()"></td>
+            <td class="item-hint"></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="total-bar tb-green">
+        <div>
+          <div class="tb-label">▶ 儲蓄合計</div>
+          <div style="font-size:10px; color:var(--dgray); margin-top:2px;">目標：<span id="saveBudgetHint">$0</span></div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+          <div class="tb-badge badge-g" id="saveStatus">🟢 達成目標</div>
+          <div class="tb-val" id="totalSave">$0</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 健診報告 ──────────────────────────────────── -->
+  <section class="card" id="s6">
+    <div class="card-header ch-navy">
+      <span class="card-title">📊 本月財務健診報告</span>
+    </div>
+    <div class="card-tip">
+      💡 以下數字全部自動計算。每月月底花5分鐘看一次，養成「看數字」的習慣，是改變財務狀況的第一步。目標值 = 依你選擇的模式比例計算。
+    </div>
+    <div class="card-body">
+      <div class="health-grid">
+        <div class="h-row">
+          <span class="h-label">月總收入</span>
+          <span class="h-val" id="h_income">$0</span>
+          <span class="h-target">—</span>
+          <span class="h-icon">—</span>
+        </div>
+        <div class="h-divider"></div>
+        <div class="h-row">
+          <span class="h-label">固定支出</span>
+          <span class="h-val" id="h_fixed">$0</span>
+          <span class="h-target">上限 <span id="h_fixed_target">$0</span></span>
+          <span class="h-icon" id="h_fixed_i">—</span>
+        </div>
+        <div class="h-row">
+          <span class="h-label">變動支出</span>
+          <span class="h-val" id="h_var">$0</span>
+          <span class="h-target">上限 <span id="h_var_target">$0</span></span>
+          <span class="h-icon" id="h_var_i">—</span>
+        </div>
+        <div class="h-row">
+          <span class="h-label">本月儲蓄</span>
+          <span class="h-val" id="h_save">$0</span>
+          <span class="h-target">目標 <span id="h_save_target">$0</span></span>
+          <span class="h-icon" id="h_save_i">—</span>
+        </div>
+        <div class="h-divider"></div>
+        <div class="h-row">
+          <span class="h-label">未分配結餘</span>
+          <span class="h-val" id="h_surplus">$0</span>
+          <span class="h-target">—</span>
+          <span class="h-icon" id="h_surplus_i">—</span>
+        </div>
+        <div class="h-divider"></div>
+        <div class="h-row">
+          <span class="h-label">固定支出佔收入</span>
+          <span class="h-val" id="h_fixedPct">0.0%</span>
+          <span class="h-target">目標 <span id="h_fixed_pct_target">50%</span></span>
+          <span class="h-icon" id="h_fixedPct_i">—</span>
+        </div>
+        <div class="h-row">
+          <span class="h-label">變動支出佔收入</span>
+          <span class="h-val" id="h_varPct">0.0%</span>
+          <span class="h-target">目標 <span id="h_var_pct_target">40%</span></span>
+          <span class="h-icon" id="h_varPct_i">—</span>
+        </div>
+        <div class="h-row">
+          <span class="h-label">儲蓄率</span>
+          <span class="h-val" id="h_savePct">0.0%</span>
+          <span class="h-target">目標 <span id="h_save_pct_target">10%</span></span>
+          <span class="h-icon" id="h_savePct_i">—</span>
+        </div>
+        <div class="h-overall ho-empty" id="h_overall">請先填入月收入數字</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 理財觀念 ───────────────────────────────────── -->
+  <section class="card" id="s7">
+    <div class="card-header ch-navy">
+      <span class="card-title">📚 重要理財觀念整理</span>
+    </div>
+    <div class="card-body">
+      <div class="concepts">
+        <div class="concept-card">
+          <div class="cc-header" style="background:var(--blue)">🥇 先存後花（Pay Yourself First）</div>
+          <div class="cc-body">薪水入帳後，<strong>第一件事</strong>就是把儲蓄金額轉入獨立帳戶，剩下的才是可花金額。不要等「花完剩下才存」，因為永遠不會有剩下。這個習慣是所有財富累積的真正起點。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cc-header" style="background:#37474F">🛡️ 緊急預備金是投資的前提</div>
+          <div class="cc-body">在開始投資前，必須先存好 <strong>3~6個月生活費</strong>的緊急備用金，存放在高流動性帳戶（活存或貨幣市場基金）。沒有它，市場一跌就被迫賣股，完全斷送複利的機會。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cc-header" style="background:var(--red)">💳 高利率負債是最壞的「投資」</div>
+          <div class="cc-body">信用卡循環利息年利率約 <strong>15%</strong>，任何穩健投資都難以穩定超越這個報酬率。清除高利率負債等於無風險的高報酬投資，優先級高於一切投資行為。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cc-header" style="background:var(--amber)">📈 定期定額，複利致富</div>
+          <div class="cc-body">不需要擇時，不需要大筆資金。每月<strong>固定買進 ETF</strong>，利用時間複利，時間是最強的投資武器。72法則：<strong>72 ÷ 年化報酬率 = 資金翻倍年數</strong>。越早開始，效果越驚人。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cc-header" style="background:var(--green)">🧘 情緒是理財最大的敵人</div>
+          <div class="cc-body">市場下跌時恐慌賣出、上漲時貪婪追高，是虧損的兩大主因。建立好的<strong>自動化系統</strong>（自動轉帳儲蓄＋定期定額委託），降低情緒干預，才是長期致勝的關鍵。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  ⚠️ 本網頁為教學輔助工具，僅供學習參考，不構成任何投資或財務建議。請依自身財務狀況與風險承受度做決策。
+</footer>
+
+<button class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到頂部">↑</button>
+
+<script>
+// ── 模式設定 ─────────────────────────────────────────────────────────
+let currentMode = 1;
+const MODES = {
+  1: { fixed:.50, var:.40, save:.10 },
+  2: { fixed:.50, var:.30, save:.20 },
+  3: { fixed:.40, var:.20, save:.40 },
+};
+
+function selectMode(m) {
+  currentMode = m;
+  document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+  document.querySelector(`.mode-card[data-mode="${m}"]`).classList.add('active');
+  calc();
+}
+
+// ── 格式化 ───────────────────────────────────────────────────────────
+function fmt(n) {
+  const abs = Math.abs(Math.round(n));
+  return (n < 0 ? '-$' : '$') + abs.toLocaleString();
+}
+function pct(n) { return (n * 100).toFixed(1) + '%'; }
+function pctLabel(n) { return Math.round(n * 100) + '%'; }
+
+// ── 燈號設定 ─────────────────────────────────────────────────────────
+function setStatus(el, type, text) {
+  el.className = 'tb-badge';
+  if (type==='g') el.classList.add('badge-g');
+  if (type==='y') el.classList.add('badge-y');
+  if (type==='r') el.classList.add('badge-r');
+  el.textContent = text;
+}
+function icon(ok, warn) {
+  if (ok)   return '🟢';
+  if (warn) return '🟡';
+  return '🔴';
+}
+
+// ── 主計算 ───────────────────────────────────────────────────────────
+function calc() {
+  // 1. 收入
+  let income = 0;
+  for (let k = 1; k <= 5; k++) {
+    const yn = document.getElementById(`yn${k}`).value.trim().toUpperCase();
+    if (yn === 'Y') income += +document.getElementById(`i${k}`).value || 0;
+  }
+  document.getElementById('totalIncome').textContent = fmt(income);
+  document.getElementById('h_income').textContent    = fmt(income);
+  document.getElementById('sh_income').textContent   = fmt(income);
+
+  // 2. 預算
+  const mode = MODES[currentMode];
+  const bF = income * mode.fixed;
+  const bV = income * mode.var;
+  const bS = income * mode.save;
+
+  document.getElementById('budgetFixed').textContent = fmt(bF);
+  document.getElementById('budgetVar').textContent   = fmt(bV);
+  document.getElementById('budgetSave').textContent  = fmt(bS);
+  document.getElementById('pctFixed').textContent    = pctLabel(mode.fixed) + '%';
+  document.getElementById('pctVar').textContent      = pctLabel(mode.var) + '%';
+  document.getElementById('pctSave').textContent     = pctLabel(mode.save) + '%';
+  document.getElementById('barFixed').style.width    = (mode.fixed * 100) + '%';
+  document.getElementById('barVar').style.width      = (mode.var   * 100) + '%';
+  document.getElementById('barSave').style.width     = (mode.save  * 100) + '%';
+
+  document.getElementById('fixedBudgetHint').textContent = fmt(bF);
+  document.getElementById('varBudgetHint').textContent   = fmt(bV);
+  document.getElementById('saveBudgetHint').textContent  = fmt(bS);
+  document.getElementById('h_fixed_target').textContent  = fmt(bF);
+  document.getElementById('h_var_target').textContent    = fmt(bV);
+  document.getElementById('h_save_target').textContent   = fmt(bS);
+  document.getElementById('h_fixed_pct_target').textContent = pctLabel(mode.fixed) + '%';
+  document.getElementById('h_var_pct_target').textContent   = pctLabel(mode.var)   + '%';
+  document.getElementById('h_save_pct_target').textContent  = pctLabel(mode.save)  + '%';
+
+  // 3. 固定支出
+  let tF = 0;
+  document.querySelectorAll('.fixed-inp').forEach(el => tF += +el.value || 0);
+  document.getElementById('totalFixed').textContent = fmt(tF);
+  document.getElementById('h_fixed').textContent    = fmt(tF);
+  document.getElementById('sh_fixed').textContent   = fmt(tF);
+
+  const fOver  = tF > bF;
+  const fWarn  = tF > bF * 0.9 && !fOver;
+  const fOk    = !fOver && !fWarn;
+  setStatus(document.getElementById('fixedStatus'),
+    fOk ? 'g' : fWarn ? 'y' : 'r',
+    fOk ? '🟢 在預算內' : fWarn ? '🟡 接近上限' : '🔴 超出預算');
+  const fi = icon(fOk, fWarn);
+  document.getElementById('h_fixed_i').textContent  = fi;
+  document.getElementById('sh_fixed_i').textContent = fi;
+
+  // 4. 變動支出
+  let tV = 0;
+  document.querySelectorAll('.var-inp').forEach(el => tV += +el.value || 0);
+  document.getElementById('totalVar').textContent = fmt(tV);
+  document.getElementById('h_var').textContent    = fmt(tV);
+  document.getElementById('sh_var').textContent   = fmt(tV);
+
+  const vOver = tV > bV;
+  const vWarn = tV > bV * 0.9 && !vOver;
+  const vOk   = !vOver && !vWarn;
+  setStatus(document.getElementById('varStatus'),
+    vOk ? 'g' : vWarn ? 'y' : 'r',
+    vOk ? '🟢 在預算內' : vWarn ? '🟡 接近上限' : '🔴 超出預算');
+  const vi = icon(vOk, vWarn);
+  document.getElementById('h_var_i').textContent  = vi;
+  document.getElementById('sh_var_i').textContent = vi;
+
+  // 5. 儲蓄
+  let tS = 0;
+  document.querySelectorAll('.save-inp').forEach(el => tS += +el.value || 0);
+  document.getElementById('totalSave').textContent = fmt(tS);
+  document.getElementById('h_save').textContent    = fmt(tS);
+  document.getElementById('sh_save').textContent   = fmt(tS);
+
+  const sOk   = tS >= bS;
+  const sWarn = tS >= bS * 0.7 && !sOk;
+  setStatus(document.getElementById('saveStatus'),
+    sOk ? 'g' : sWarn ? 'y' : 'r',
+    sOk ? '🟢 達成目標！' : sWarn ? '🟡 接近目標' : '🔴 未達目標');
+  const si = icon(sOk, sWarn);
+  document.getElementById('h_save_i').textContent  = si;
+  document.getElementById('sh_save_i').textContent = si;
+
+  // 6. 結餘
+  const surplus = income - tF - tV - tS;
+  document.getElementById('h_surplus').textContent    = fmt(surplus);
+  document.getElementById('sh_surplus').textContent   = fmt(surplus);
+  const surpI = surplus >= 0 ? '🟢' : '🔴';
+  document.getElementById('h_surplus_i').textContent  = surpI;
+  document.getElementById('sh_surplus_i').textContent = surpI;
+
+  // 7. 佔比
+  const fp = income > 0 ? tF / income : 0;
+  const vp = income > 0 ? tV / income : 0;
+  const sp = income > 0 ? tS / income : 0;
+  document.getElementById('h_fixedPct').textContent = pct(fp);
+  document.getElementById('h_varPct').textContent   = pct(vp);
+  document.getElementById('h_savePct').textContent  = pct(sp);
+  document.getElementById('h_fixedPct_i').textContent = fp > mode.fixed + .01 ? '🔴' : '🟢';
+  document.getElementById('h_varPct_i').textContent   = vp > mode.var   + .01 ? '🔴' : '🟢';
+  document.getElementById('h_savePct_i').textContent  = sp < mode.save  - .01 ? '🔴' : '🟢';
+
+  // 8. 整體
+  const overallEl = document.getElementById('h_overall');
+  const shEl      = document.getElementById('sh_overall');
+  if (income === 0) {
+    overallEl.className = 'h-overall ho-empty';
+    overallEl.textContent = '請先填入月收入數字';
+    shEl.textContent = '請先填入收入';
+  } else if (fOk && vOk && sOk) {
+    overallEl.className = 'h-overall ho-great';
+    overallEl.textContent = '🎉 全部達標！繼續保持！';
+    shEl.textContent = '🎉 全部達標！';
+  } else {
+    const issues = [];
+    if (!fOk) issues.push('固定支出超標');
+    if (!vOk) issues.push('變動支出超標');
+    if (!sOk) issues.push('儲蓄未達目標');
+    overallEl.className = 'h-overall ho-' + (issues.length === 3 ? 'bad' : 'warn');
+    overallEl.textContent = '⚠️ ' + issues.join('、') + '，需調整';
+    shEl.textContent = '⚠️ ' + issues.join('、');
+  }
+
+  // 浮動卡顯示（捲動超過一定高度才出現）
+  document.getElementById('stickyHealth').classList.toggle('show', income > 0);
+}
+
+// ── 捲動功能 ─────────────────────────────────────────────────────────
+function scrollTo(id, btn) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.step-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+}
+
+// 回到頂部按鈕 & 導覽高亮
+window.addEventListener('scroll', () => {
+  const btn = document.getElementById('scrollTopBtn');
+  btn.classList.toggle('show', window.scrollY > 300);
+
+  // 更新導覽高亮
+  const sections = ['s1','s2','s3','s4','s5','s6','s7'];
+  const btns = document.querySelectorAll('.step-btn');
+  let current = 0;
+  sections.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top < 120) current = i;
+  });
+  btns.forEach((b, i) => b.classList.toggle('active', i === current));
+});
+
+// 初始化
+calc();
+</script>
+</body>
+</html>
